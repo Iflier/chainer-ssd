@@ -58,15 +58,18 @@ class VOCDataset:
         difficulties = list()
         tree = ET.parse(os.path.join(
             self.images[i][0], 'Annotations', self.images[i][1] + '.xml'))
-        for child in tree.getroot():
-            if not child.tag == 'object':
-                continue
-            bndbox = child.find('bndbox')
-            boxes.append(tuple(
-                float(bndbox.find(t).text)
-                for t in ('xmin', 'ymin', 'xmax', 'ymax')))
-            classes.append(names.index(child.find('name').text))
-            difficulties.append(bool(int(child.find('difficult').text)))
+        # print(self.images[i][0], 'Annotations', self.images[i][1] + '.xml')))
+        root = tree.getroot()
+        for object_tree in root.findall('object'):
+            bndbox = object_tree.find('bndbox')
+            boxes.append(tupletuple(float(bndbox.find(t).text)
+                                    for t in ('xmin', 'ymin', 'xmax', 'ymax')))
+            try:
+                classes.append(self.names.index(object_tree.find('name').text))
+                # print(object_tree.find('name').text) 
+                difficulties.append(bool(int(child.find('difficult').text)))
+            except:
+                pass                   
         boxes = np.array(boxes)
         classes = np.array(classes)
         difficulties = np.array(difficulties)
